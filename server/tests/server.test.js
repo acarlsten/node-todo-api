@@ -17,9 +17,9 @@ beforeEach((done) => {
 })
 
 describe('POST /todos', () => {
+
   it('should create a new Todo', (done) => {
     var text = 'Test todo text string'
-
     request(app)
       .post('/todos')
       .send({text})
@@ -41,7 +41,6 @@ describe('POST /todos', () => {
   })
 
   it('should not create a todo with invalid data', (done) => {
-
     request(app)
       .post('/todos')
       .send({})
@@ -60,6 +59,7 @@ describe('POST /todos', () => {
 })
 
 describe('GET /todos', () => {
+
   it('should get all todos', (done) => {
     request(app)
       .get('/todos')
@@ -69,4 +69,5 @@ describe('GET /todos', () => {
       })
       .end(done)
   })
+
 })
