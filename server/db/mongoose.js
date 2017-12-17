@@ -1,6 +1,6 @@
 var mongoose = require('mongoose')
 
-var uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/TodoApp'
+var uri = process.env.MONGODB_URI
 var options = {
   useMongoClient: true
 }
@@ -11,6 +11,5 @@ mongoose.connect(uri, options).then(() => {
 }, () => {
   console.log('WARNING! Unable to connect to MongoDB server..')
 } )
-
 
 module.exports = {mongoose}
