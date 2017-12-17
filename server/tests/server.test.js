@@ -13,6 +13,8 @@ const todos = [{
   text: 'Second test todo'
 }]
 
+const fakeId = new ObjectID().toHexString()
+
 beforeEach((done) => {
   Todo.remove({}).then(() => {
     return Todo.insertMany(todos)
@@ -87,12 +89,11 @@ describe('GET /todos/:id', () => {
   })
 
   it('should return a 404 if todo not found', (done) => {
-    var id = new ObjectID().toHexString()
     request(app)
-      .get(`/todos/${id}`)
+      .get(`/todos/${fakeId}`)
       .expect(404)
       .expect((res) => {
-        expect(res.body.errormessage).toBe(`Unable to find TODO with id: ${id}`)
+        expect(res.body.errormessage).toBe(`Unable to find TODO with id: ${fakeId}`)
       })
       .end(done)
   })
@@ -100,6 +101,49 @@ describe('GET /todos/:id', () => {
   it('should return a 400 if the ObjectID is invalid', (done) => {
     request(app)
       .get('/todos/INVALID')
+      .expect(400)
+      .expect((res) => {
+        expect(res.body.errormessage).toBe('Invalid ID')
+      })
+      .end(done)
+  })
+})
+
+describe('DELETE /todos/:id', () => {
+  it('should remove the correct todo', (done) => {
+    var todoId = todos[0]._id.toHexString()
+    request(app)
+      .delete(`/todos/${todoId}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo._id).toBe(todoId)
+      })
+      .end((err, res) => {
+
+        if (err) {
+          return done(err)
+        }
+
+        Todo.findById(todoId).then((todo) => {
+          expect(todo).toBeNull()
+          done()
+        }).catch((e) => done(e))
+      })
+  })
+
+  it('should return a 404 if todo not found', (done) => {
+    request(app)
+      .delete(`/todos/${fakeId}`)
+      .expect(404)
+      .expect((res) => {
+        expect(res.body.errormessage).toBe(`Unable to find TODO with id: ${fakeId}`)
+      })
+      .end(done)
+  })
+
+  it('should return a 400 if the ObjectID is invalid', (done) => {
+    request(app)
+      .delete('/todos/INVALID')
       .expect(400)
       .expect((res) => {
         expect(res.body.errormessage).toBe('Invalid ID')
