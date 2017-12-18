@@ -1,4 +1,5 @@
-var mongoose = require('mongoose')
+const mongoose = require('mongoose')
+const validator = require('validator')
 
 var Todo = mongoose.model('Todo', {
   text: {
