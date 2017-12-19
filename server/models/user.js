@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
+const bcrypt = require('bcryptjs')
 
 var UserSchema = new mongoose.Schema({
   email: {
@@ -35,6 +36,7 @@ var UserSchema = new mongoose.Schema({
   usePushEach: true
 })
 
+//methods
 UserSchema.methods.toJSON = function () {
   var user = this
   var userObject = user.toObject()
@@ -70,6 +72,24 @@ UserSchema.statics.findByToken = function (token) {
   })
 }
 
+//middleware - salt and encrypt pw 
+
+UserSchema.pre('save', function (next) {
+  var user = this
+  
+  if (user.isModified('password')) {
+    bcrypt.genSalt(12, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash
+        next()
+      })
+    })
+  } else {
+    next()
+  }
+})
+
+//return
 var User = mongoose.model('User', UserSchema)
 
 module.exports = {User}
