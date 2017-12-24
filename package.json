@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
-    "test": "export NODE_ENV=test && mocha server/**/*.test.js",
+    "test": "export NODE_ENV=test && mocha server/**/*.test.js --exit",
     "test-watch": "nodemon --exec 'npm test'"
   },
   "engines": {
@@ -22,6 +22,7 @@
     "lodash": "^4.17.4",
     "mongodb": "^3.0.0-rc0",
     "mongoose": "^4.13.6",
+    "mongoose-unique-validator": "^1.0.6",
     "validator": "^9.2.0"
   },
   "devDependencies": {

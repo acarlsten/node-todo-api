@@ -3,6 +3,7 @@ const validator = require('validator')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const bcrypt = require('bcryptjs')
+const uniqueValidator = require('mongoose-unique-validator')
 
 var UserSchema = new mongoose.Schema({
   email: {
@@ -35,6 +36,9 @@ var UserSchema = new mongoose.Schema({
 }, {
   usePushEach: true
 })
+
+//adds validation for unique email
+UserSchema.plugin(uniqueValidator)
 
 //methods
 UserSchema.methods.toJSON = function () {
@@ -73,12 +77,16 @@ UserSchema.statics.findByToken = function (token) {
 }
 
 //middleware - salt and encrypt pw 
-
 UserSchema.pre('save', function (next) {
   var user = this
   
   if (user.isModified('password')) {
-    bcrypt.genSalt(12, (err, salt) => {
+    if(process.env.NODE_ENV === 'test') { // maybe refactor this out to config.js
+      var iterations = 2
+    } else {
+      iterations = 12
+    }
+    bcrypt.genSalt(iterations, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) => {
         user.password = hash
         next()
