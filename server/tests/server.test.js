@@ -340,3 +340,25 @@ describe('POST /users/login', () => {
       })
   })
 })
+
+describe('DELETE /users/me/token', () => {
+  it('should delete auth token on logout', (done) => {
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.message).toBe('You are now logged out!')
+      })
+      .end((err) => {
+        if (err) {
+          return done(err)
+        }
+
+        User.findById(users[0]._id).then((user) => {
+          expect(user.tokens).toHaveLength(0)
+          done()
+        }).catch((e) => done(e))
+      })
+  })
+})
