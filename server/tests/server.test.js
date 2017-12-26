@@ -260,7 +260,7 @@ describe('POST /users', () => {
           expect(user).toBeTruthy()
           expect(user.password).not.toBe(password)
           done()
-        })
+        }).catch((e) => done(e))
       })
   })
 
@@ -272,8 +272,8 @@ describe('POST /users', () => {
       .send({email, password})
       .expect(400)
       .expect((res) => {
-        expect(res.body.errors.password.kind).toBe('minlength')
-        expect(res.body.errors.email.message).toBe(`${email} is not a valid e-mail..`)
+        expect(res.body.password.kind).toBe('minlength')
+        expect(res.body.email.message).toBe(`${email} is not a valid e-mail..`)
       })
       .end(done)
   })
@@ -286,8 +286,57 @@ describe('POST /users', () => {
       .send({email, password})
       .expect(400)
       .expect((res) => {
-        expect(res.body.errors.email.kind).toBe('unique')
+        expect(res.body.email.kind).toBe('unique')
       })
       .end(done)
+  })
+})
+
+describe('POST /users/login', () => {
+  it('should login user and return x-auth token', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: users[1].password
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toBeTruthy()
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err)
+        }
+
+        User.findById(users[1]._id).then((user) => {
+          expect(user.tokens[0].access).toBe('auth')
+          expect(user.tokens[0].token).toBe(res.headers['x-auth'])
+          done()
+        }).catch((e) => done(e))
+      })
+  })
+
+  it('should reject invalid login', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: 'hurfydurf'
+      })
+      .expect(400)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toBeFalsy()
+      })
+      .end((err) => {
+        if (err) {
+          return done(err)
+        }
+
+        User.findById(users[1]._id).then((user) => {
+          expect(user.tokens).toHaveLength(0)
+          done()
+        }).catch((e) => done(e))
+      })
   })
 })
