@@ -11,9 +11,7 @@ var authenticate  = (req, res, next) => {
     req.token = token
     next()
   }).catch((e) => {
-    res.status(401).send({
-      errormessage: 'Invalid token'
-    })
+    res.status(401).send()
   })
 }
 
