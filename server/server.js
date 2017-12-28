@@ -148,6 +148,7 @@ app.post('/users/login', (req, res) => {
   var body = _.pick(req.body, ['email', 'password'])
 
   User.findByCredentials(body.email, body.password).then((user) => {
+    user.removeAllTokens(user) //not sure if this is wanted in the future, prevent db spam
     return user.generateAuthToken().then((token) => {
       res.header('x-auth', token).send(user)
     })

@@ -51,7 +51,7 @@ UserSchema.methods.toJSON = function () {
 UserSchema.methods.generateAuthToken = function () {
   var user = this
   var access = 'auth'
-  var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString()
+  var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET, { expiresIn: '7d' }).toString()
 
   user.tokens.push({access, token})
   return user.save().then(() => {
@@ -67,6 +67,13 @@ UserSchema.methods.removeToken = function (token) {
       tokens: {token}
     }
   })
+}
+
+//unsure if wise to use this, but it works!
+UserSchema.methods.removeAllTokens = function () {
+  var user = this
+  return user.update({$set: {tokens: []}
+  }).exec()
 }
 
 UserSchema.statics.findByToken = function (token) {
