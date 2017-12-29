@@ -47,7 +47,7 @@ UserSchema.methods.toJSON = function () {
 
   return _.pick(userObject, ['_id', 'email'])
 }
-//svårt!!
+//kanske inte behövs sparas i db
 UserSchema.methods.generateAuthToken = function () {
   var user = this
   var access = 'auth'
@@ -76,6 +76,7 @@ UserSchema.methods.removeAllTokens = function () {
   }).exec()
 }
 
+//jwt.verify sen hitta efter id istället
 UserSchema.statics.findByToken = function (token) {
   var User = this
   var decoded
